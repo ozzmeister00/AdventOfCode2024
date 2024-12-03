@@ -1,3 +1,18 @@
+from itertools import tee, islice
+from typing import Iterator, Iterable, TypeVar
+
+
+T = TypeVar('T')
+def window(iterable: Iterable[T], n: int) -> Iterator[tuple[T, ...]]:
+    """
+    Creates a sliding window of size n as an iterator
+
+    :param iterable the input iterator:
+    :param n size of the window:
+    :return Iterator[tuple[T, ...]:
+    """
+    slices = (islice(it, i, None) for i, it in enumerate(tee(iterable, n)))
+    return zip(*slices)
 
 
 class defaultlist(list):
