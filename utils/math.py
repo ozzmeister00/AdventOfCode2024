@@ -417,6 +417,40 @@ class Line2D(object):
 
         return False
 
+    def getIntegerPoints(self) -> list[Int2]:
+        """
+        Draw the line using Bresenham's algorithm (https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm)
+        and return the integer coordinates of this line, inclusive of the start and end of the line
+
+        :return list[Int2]:
+        """
+        xDifference = abs(self.end.x - self.start.x)
+        yDifference = -abs(self.end.y - self.start.y)
+        xSlope = 1 if self.start.x < self.end.x else -1
+        ySlope = 1 if self.start.y < self.end.y else -1
+        error = xDifference + yDifference
+
+        outPoints = [self.start]
+
+        # TODO dump horizontal or vertical lines more efficiently since we don't have to worry about slope in either case
+
+        # until we reach the end, find the next poitn
+        while outPoints[-1] != self.end:
+            x = outPoints[-1].x
+            y = outPoints[-1].y
+
+            doubleError = 2 * error
+            if doubleError >= yDifference:
+                error += yDifference
+                x += xSlope
+            if doubleError <= xDifference:
+                error += xDifference
+                y += ySlope
+
+            outPoints.append(Int2(x, y))
+
+        return outPoints
+
     def __repr__(self):
         return f"Line2D({self.start}, {self.end})"
 
@@ -744,6 +778,22 @@ class Grid2D(list):
                 point = Int2(x, y)
                 yield point, self[point]
 
+    def enumerateFromStartToEnd(self, start: int | Int2, end: int | Int2) -> Iterable[tuple[Int2, object]]:
+        """
+        Return all the objects along the line from start to finish (inclusive)
+
+        :yields Int2, object: the current coordinate and object at that coordinate:
+        """
+        if isinstance(start, int):
+            start = self._coordsToIndex(start)
+        if isinstance(end, int):
+            end = self._coordsToIndex(end)
+
+        line = Line2D(start, end)
+
+        for coord in line.getIntegerPoints():
+            yield coord, self[coord]
+
     def copy(self):
         """
         Override the built-in copy method so it returns a proper Grid2D
@@ -820,13 +870,10 @@ class Grid2D(list):
 
         :returns: the item at the input coordinates
         """
-        # use slice to get orthogonal lines
+        # use slice to get lines
         if isinstance(coords, slice):
             if isinstance(coords.start, Int2) and isinstance(coords.stop, Int2):
                 step = coords.step if coords.step else 1
-                if step < 0:
-                    raise ValueError("Grid2D slicing step must be positive")
-
                 # slice in X if the X of start and end points are the same
                 if coords.start.x == coords.stop.x:
                     if coords.start.y > coords.stop.y:

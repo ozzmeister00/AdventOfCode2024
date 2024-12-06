@@ -84,7 +84,7 @@ class TestTwoD(TestCase):
     def test_mul(self):
         sameClass = self.testFloatObj * self.otherFloatObj
         expected = utils.math.Float2(self.floatValues[0] * self.otherFloatValues[0],
-                                      self.floatValues[1] * self.otherFloatValues[1])
+                                     self.floatValues[1] * self.otherFloatValues[1])
         self.assertEqual(sameClass, expected,
                          msg="For some reason {} does not equal {}".format(sameClass, expected))
 
@@ -96,7 +96,7 @@ class TestTwoD(TestCase):
     def test_div(self):
         sameClassDivided = self.testFloatObj / self.otherFloatObj
         expected = utils.math.Float2(self.floatValues[0] / self.otherFloatValues[0],
-                                      self.floatValues[1] / self.otherFloatValues[1])
+                                     self.floatValues[1] / self.otherFloatValues[1])
         self.assertEqual(sameClassDivided, expected,
                          msg="For some reason {} does not equal {}".format(sameClassDivided, expected))
 
@@ -108,7 +108,7 @@ class TestTwoD(TestCase):
     def test_sub(self):
         sameClass = self.testFloatObj - self.otherFloatObj
         expected = utils.math.Float2(self.floatValues[0] - self.otherFloatValues[0],
-                                      self.floatValues[1] - self.otherFloatValues[1])
+                                     self.floatValues[1] - self.otherFloatValues[1])
         self.assertEqual(sameClass, expected,
                          msg="For some reason {} does not equal {}".format(sameClass, expected))
 
@@ -171,9 +171,9 @@ class TestBoundingBox2D(TestCase):
     def test_overlap(self):
         doesOverlap = utils.math.BoundingBox2D(utils.math.Int2(0, 0),
                                                utils.math.Int2(2, 2))
-        doesNotOverlap = utils.math.BoundingBox2D(utils.math.Int2(5, 5), 
+        doesNotOverlap = utils.math.BoundingBox2D(utils.math.Int2(5, 5),
                                                   utils.math.Int2(7, 7))
-        
+
         self.assertTrue(self.bbox.overlaps(doesOverlap))
         self.assertFalse(self.bbox.overlaps(doesNotOverlap))
         self.assertRaises(ValueError, self.bbox.overlaps, 'Foo')
@@ -202,13 +202,13 @@ class TestLine2D(TestCase):
 
     def test_intersection(self):
         targetLine = utils.math.Line2D(utils.math.Int2(0, 0),
-                                          utils.math.Int2(1, 10))
+                                       utils.math.Int2(1, 10))
 
         intersecting = utils.math.Line2D(utils.math.Int2(0, 5),
-                                            utils.math.Int2(5, 5))
+                                         utils.math.Int2(5, 5))
 
         nonIntersecting = utils.math.Line2D(utils.math.Int2(5, 5),
-                                               utils.math.Int2(10, 5))
+                                            utils.math.Int2(10, 5))
 
         self.assertTrue(targetLine.intersects(intersecting))
         self.assertFalse(targetLine.intersects(nonIntersecting))
@@ -220,6 +220,18 @@ class TestLine2D(TestCase):
 
         self.assertTrue(polygonTestA.intersects(polygonTestB))
 
+    def test_get_integer_points(self):
+        start = utils.math.Int2(0, 1)
+        end = utils.math.Int2(4, 3)
+        line = utils.math.Line2D(start, end)
+
+        expected = [utils.math.Int2(0, 1),
+                    utils.math.Int2(1, 2),
+                    utils.math.Int2(2, 2),
+                    utils.math.Int2(3, 3),
+                    utils.math.Int2(4, 3)]
+
+        self.assertEqual(expected, line.getIntegerPoints())
 
 class TestPolygon(TestCase):
     TEST_POINTS = [utils.math.Int2(0, 0),
@@ -227,7 +239,7 @@ class TestPolygon(TestCase):
                    utils.math.Int2(3, 3),
                    utils.math.Int2(5, 5),
                    utils.math.Int2(5, 0)]
-    
+
     def setUp(self):
         self.polygon = utils.math.Polygon2D(self.TEST_POINTS)
 
@@ -251,7 +263,7 @@ class TestPolygon(TestCase):
         self.assertFalse(self.polygon.pointInside(pointOutsideInBBox))
 
     def test_2023Day10State(self):
-        vertexes = [utils.math.Int2(1, 1), 
+        vertexes = [utils.math.Int2(1, 1),
                     utils.math.Int2(8, 1),
                     utils.math.Int2(8, 7),
                     utils.math.Int2(5, 7),
@@ -260,7 +272,7 @@ class TestPolygon(TestCase):
                     utils.math.Int2(7, 2),
                     utils.math.Int2(2, 2),
                     utils.math.Int2(2, 5),
-                    utils.math.Int2(4, 5), 
+                    utils.math.Int2(4, 5),
                     utils.math.Int2(4, 7),
                     utils.math.Int2(1, 7)]
 
@@ -271,7 +283,7 @@ class TestPolygon(TestCase):
         for point in points:
             self.assertTrue(polygon.pointInside(point))
 
-        
+
 class TestGrid2D(TestCase):
     def setUp(self):
         self.inGrid = 'ABCD'
@@ -351,7 +363,20 @@ class TestGrid2D(TestCase):
         testObj = utils.math.Grid2D(2, data=self.inGrid)
         outSlice = testObj[self.testCoords[0][0]:self.testCoords[1][0]]
         expected = ['A', 'B']
-        self.assertEqual(outSlice, expected)
+        self.assertEqual(expected, outSlice)
+
+        # test negative slice
+        expected = ['B', 'A']
+        outSlice = testObj[self.testCoords[1][0]:self.testCoords[0][0]:-1]
+        self.assertEqual(expected, outSlice)
+
+        # test diagonal slice
+        expected = ['A', 'D']
+        outSlice = testObj[self.testCoords[0][0]:self.testCoords[1][1]]
+        self.assertEqual(expected, outSlice)
+
+    def test_line(self):
+        self.fail()
 
     def test_bboxGet(self):
         testGrid = list(range(9))
