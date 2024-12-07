@@ -233,6 +233,7 @@ class TestLine2D(TestCase):
 
         self.assertEqual(expected, line.getIntegerPoints())
 
+
 class TestPolygon(TestCase):
     TEST_POINTS = [utils.math.Int2(0, 0),
                    utils.math.Int2(0, 5),
@@ -297,6 +298,15 @@ class TestGrid2D(TestCase):
         for key, value in self.testCoords:
             self.assertEqual(testObj[key], value)
 
+    def test_get_line(self):
+        testObject = utils.math.Grid2D(3, "*000*000*")
+        line = utils.math.Line2D(utils.math.Int2(0, 0), utils.math.Int2(2, 2))
+
+        expectedResults = ['*', '*', '*']
+        results = testObject[line]
+
+        self.assertEqual(expectedResults, results)
+
     def test_set(self):
         testObj = utils.math.Grid2D(2, data=self.inGrid)
         target = utils.math.Int2(1, 1)
@@ -346,6 +356,21 @@ class TestGrid2D(TestCase):
         outColumns = [value for x, value in testObj.enumerateColumns(reverse=True)]
         self.assertEqual(reversedOutput, outColumns)
 
+    def test_enumerateLine(self):
+        testObject = utils.math.Grid2D(6, "*#"*6*3)
+        line = utils.math.Line2D(utils.math.Int2(1, 1), utils.math.Int2(2, 4))
+        expectedCoords = [utils.math.Int2(1, 1),
+                          utils.math.Int2(1, 2),
+                          utils.math.Int2(2, 3),
+                          utils.math.Int2(2, 4),
+                          ]
+        expectedValues = ['#', '#', '*', '*']
+
+        expectedResults = list(zip(expectedCoords, expectedValues))
+        results = [(i, value) for i, value in testObject.enumerateLine(line)]
+
+        self.assertEqual(expectedResults, results)
+
     def test_finders(self):
         data = [1, 2, 3, 1]
         testObj = utils.math.Grid2D(2, data=data)
@@ -374,9 +399,6 @@ class TestGrid2D(TestCase):
         expected = ['A', 'D']
         outSlice = testObj[self.testCoords[0][0]:self.testCoords[1][1]]
         self.assertEqual(expected, outSlice)
-
-    def test_line(self):
-        self.fail()
 
     def test_bboxGet(self):
         testGrid = list(range(9))

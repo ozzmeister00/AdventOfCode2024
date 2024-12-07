@@ -778,19 +778,12 @@ class Grid2D(list):
                 point = Int2(x, y)
                 yield point, self[point]
 
-    def enumerateFromStartToEnd(self, start: int | Int2, end: int | Int2) -> Iterable[tuple[Int2, object]]:
+    def enumerateLine(self, line: Line2D) -> Iterable[tuple[Int2, object]]:
         """
         Return all the objects along the line from start to finish (inclusive)
 
         :yields Int2, object: the current coordinate and object at that coordinate:
         """
-        if isinstance(start, int):
-            start = self._coordsToIndex(start)
-        if isinstance(end, int):
-            end = self._coordsToIndex(end)
-
-        line = Line2D(start, end)
-
         for coord in line.getIntegerPoints():
             yield coord, self[coord]
 
@@ -864,16 +857,18 @@ class Grid2D(list):
 
         super(Grid2D, self).insert(index, value)
 
-    def __getitem__(self, coords):
+    def __getitem__(self, coords: int | Int2 | slice | Line2D):
         """
-        :param int, Int2 coords: the coordinates of the item to retrieve
+        :param int |  Int2 | slice | Line2D coords: the coordinates of the item to retrieve
 
         :returns: the item at the input coordinates
         """
         # use slice to get lines
         if isinstance(coords, slice):
+            step = coords.step if coords.step else 1
+
+            # if we were passed two coordinates for slicing, proceed
             if isinstance(coords.start, Int2) and isinstance(coords.stop, Int2):
-                step = coords.step if coords.step else 1
                 # slice in X if the X of start and end points are the same
                 if coords.start.x == coords.stop.x:
                     if coords.start.y > coords.stop.y:
@@ -893,11 +888,24 @@ class Grid2D(list):
                         stop = coords.stop.x
 
                     return [self[Int2(x, coords.start.y)] for x in range(start, stop + 1, step)]
+
+                # if the slope of the coordinates isn't infinite or 0, then just make a line and use bresenham's to get the
+                # coordinates of the points along that line
                 else:
-                    raise ValueError(
-                        "Slicing only supports straight lines. Either Y or X must be the same in start and stop")
+                    line = Line2D(coords.start, coords.stop)
+                    return [self[i] for i in line.getIntegerPoints()]
+
+            # if the user wanted to slice this as a regular ol' array, let 'em do it
+            elif isinstance(coords.start, int) and isinstance(coords.stop, int):
+                return [self[i] for i in range(coords.start, coords.stop, step)]
+
             else:
-                raise ValueError("Grid2D slicing requires start and stop to be Int2")
+                raise ValueError(f"Slice start and stop must be of matching type (either int or Int2) got {str(type(coords.start))} and {str(type(coords.stop))}")
+
+        # if the user already has a line they want to get, then let 'em!
+        elif isinstance(coords, Line2D):
+            return [self[i] for i in coords.getIntegerPoints()]
+
         elif isinstance(coords, BoundingBox2D):
             output = []
             for y in range(coords.min.y, coords.max.y):
