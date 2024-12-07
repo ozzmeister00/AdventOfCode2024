@@ -397,7 +397,7 @@ class TestGrid2D(TestCase):
 
         # test diagonal slice
         expected = ['A', 'D']
-        outSlice = testObj[self.testCoords[0][0]:self.testCoords[1][1]]
+        outSlice = testObj[self.testCoords[0][0]:self.testCoords[3][0]]
         self.assertEqual(expected, outSlice)
 
     def test_bboxGet(self):

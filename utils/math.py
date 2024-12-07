@@ -618,7 +618,7 @@ class Grid2D(list):
 
         return index
 
-    def coordsInBounds(self, coords):
+    def coordsInBounds(self, coords: Int2 | list):
         """
         Returns true if the input coordinates are within the bounds of this grid
         :param Int2 coords: 2d coordinates to check
@@ -857,7 +857,7 @@ class Grid2D(list):
 
         super(Grid2D, self).insert(index, value)
 
-    def __getitem__(self, coords: int | Int2 | slice | Line2D):
+    def __getitem__(self, coords: int | Int2 | slice | Line2D | BoundingBox2D):
         """
         :param int |  Int2 | slice | Line2D coords: the coordinates of the item to retrieve
 
@@ -869,25 +869,16 @@ class Grid2D(list):
 
             # if we were passed two coordinates for slicing, proceed
             if isinstance(coords.start, Int2) and isinstance(coords.stop, Int2):
-                # slice in X if the X of start and end points are the same
+
+                # orthogonal slicing is faster than trying to draw the line
+
+                # slice in Y if the X of start and end points are the same
                 if coords.start.x == coords.stop.x:
-                    if coords.start.y > coords.stop.y:
-                        start = coords.stop.y
-                        stop = coords.start.y
-                    else:
-                        start = coords.start.y
-                        stop = coords.stop.y
+                    return [self[Int2(coords.start.x, y)] for y in range(coords.start.y, coords.stop.y + int(math.copysign(1, step)), step)]
 
-                    return [self[Int2(coords.start.x, y)] for y in range(start, stop + 1, step)]
+                # slice in X if the Y of start and end points are the same
                 elif coords.start.y == coords.stop.y:
-                    if coords.start.x > coords.stop.x:
-                        start = coords.stop.x
-                        stop = coords.start.x
-                    else:
-                        start = coords.start.x
-                        stop = coords.stop.x
-
-                    return [self[Int2(x, coords.start.y)] for x in range(start, stop + 1, step)]
+                    return [self[Int2(x, coords.start.y)] for x in range(coords.start.x, coords.stop.x + int(math.copysign(1, step)), step)]
 
                 # if the slope of the coordinates isn't infinite or 0, then just make a line and use bresenham's to get the
                 # coordinates of the points along that line
