@@ -49,7 +49,10 @@ import utils.math
 import solver.runner
 import solver.solver
 
-XMAS = "XMAS"
+# cache off XMAS as a list
+# since we're going to pull it from the grid as a list, it'll be faster to compare list to list
+# than anything else
+XMAS = ['X', 'M', 'A', 'S']
 
 
 class Solver(solver.solver.ProblemSolver):
@@ -73,7 +76,12 @@ class Solver(solver.solver.ProblemSolver):
         :param direction: the direction to search in
         :return bool: if we've found XMAS
         """
-        pass
+        endPoint = coord + direction * 3
+        if self.processed.coordsInBounds(endPoint):
+            section = self.processed[coord:endPoint]
+            return section == XMAS
+
+        return False
 
     def findXMas(self, coord: utils.math.Int2) -> int:
         """
@@ -93,16 +101,56 @@ class Solver(solver.solver.ProblemSolver):
         """
         result = 0
 
-
+        # first, find the coords of all the Xs, since we know that XMAS can only start at X
+        xCoords = self.processed.findCoords('X')
+        for x in xCoords:
+            result += self.findXMas(x)
 
         return result
 
-    def SolvePartTwo(self):
+    def isCoordMAS(self, coord: utils.math.Int2) -> bool:
         """
+        check the corners surrounding the input coordinate to see if
+        they're S and then M or M and then S
 
-        :return int: the result
+        :param coord:
+        :return: if an x-shaped MAS appears at this coordinate
+        """
+        sw = coord + utils.math.Grid2D.SouthWest
+        nw = coord + utils.math.Grid2D.NorthWest
+        ne = coord + utils.math.Grid2D.NorthEast
+        se = coord + utils.math.Grid2D.SouthEast
+
+        # if any of the coordinates are out of bounds,
+        # bail out early because we know that couldn't possibly fit the criteria
+        if not all([self.processed.coordsInBounds(x) for x in [sw, nw, ne, se]]):
+            return False
+
+        count = 0
+        # if the SouthWest and NorthEast coordinates are S and M, or M and S, then we know we have one
+        if (self.processed[sw] == 'S' and self.processed[ne] == 'M') or\
+           (self.processed[sw] == 'M' and self.processed[ne] == 'S'):
+            count += 1
+        # then if the NorthWest and SouthEast coordinates are S and M, or M and S, then we know we have the other
+        if (self.processed[nw] == 'S' and self.processed[se] == 'M') or\
+             (self.processed[nw] == 'M' and self.processed[se] == 'S'):
+            count += 1
+
+        # and if we have both, we're golden!
+        return count == 2
+
+    def SolvePartTwo(self) -> int:
+        """
+        :return int: the number of MASes in the shape of an X
         """
         result = 0
+
+        # first find all the A coordinates
+        aCoords = self.processed.findCoords('A')
+
+        for a in aCoords:
+            if self.isCoordMAS(a):
+                result += 1
 
         return result
 
