@@ -874,10 +874,14 @@ class Grid2D(list):
 
                 # slice in Y if the X of start and end points are the same
                 if coords.start.x == coords.stop.x:
+                    if coords.start.y > coords.stop.y:
+                        step *= -1
                     return [self[Int2(coords.start.x, y)] for y in range(coords.start.y, coords.stop.y + int(math.copysign(1, step)), step)]
 
                 # slice in X if the Y of start and end points are the same
                 elif coords.start.y == coords.stop.y:
+                    if coords.start.x > coords.stop.x:
+                        step *= -1
                     return [self[Int2(x, coords.start.y)] for x in range(coords.start.x, coords.stop.x + int(math.copysign(1, step)), step)]
 
                 # if the slope of the coordinates isn't infinite or 0, then just make a line and use bresenham's to get the
