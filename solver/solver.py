@@ -98,7 +98,6 @@ class ProblemSolver(object):
         """
         Solve both parts 1 and 2 with the input data, and print it out
         """
-        self.processed = self.ProcessInput()
         try:
             self.partOneResult = self.SolvePartOne()
             print('Part 1 Result: ', self.partOneResult)

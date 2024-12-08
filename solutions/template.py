@@ -7,7 +7,7 @@ import solver.solver
 
 class Solver(solver.solver.ProblemSolver):
     def __init__(self, rawData=None):
-        super(Solver, self).__init__(15, rawData=rawData)
+        super(Solver, self).__init__(5, rawData=rawData)
 
     def ProcessInput(self):
         """
@@ -16,7 +16,16 @@ class Solver(solver.solver.ProblemSolver):
         processed = None
         return processed
 
-    def SolvePartOne(self):
+    def SolvePartOne(self) -> int:
+        """
+
+        :return int: the result
+        """
+        result = 0
+
+        return result
+
+    def SolvePartTwo(self) -> int:
         """
 
         :return int: the result

@@ -15,6 +15,22 @@ def window(iterable: Iterable[T], n: int) -> Iterator[tuple[T, ...]]:
     return zip(*slices)
 
 
+def headsAndTails(index: int, inList: list) -> tuple[list, list]:
+    """
+    Split the input list into two, omitting the input index and returning
+    slices on either side of that index
+
+    :param index:
+    :param inList:
+    :return:
+    """
+    # special case handling for the last index
+    if index == len(inList)-1:
+        return inList[:-1], []
+
+    return inList[:index], inList[index:]
+
+
 class defaultlist(list):
     """
     A class that will automatically populate itself with values

@@ -16,3 +16,11 @@ class Test(TestCase):
 
         # and that we can retrieve that value
         self.assertEqual(8, l[8])
+
+    def test_headsAndTails(self):
+        l = [0, 1, 2, 3, 4, 5]
+        expectedHead, expectedTail = [0, 1], [3, 4, 5]
+        heads, tails = utils.list.headsAndTails(2, l)
+
+        self.assertEqual(expectedHead, heads)
+        self.assertEqual(expectedTail, tails)
