@@ -549,7 +549,8 @@ class Grid2D(list):
 
     # store these anti-clockwise, so we can potentially do useful stuff with that assumption later
     neighbors = [Right, UpRight, Up, UpLeft, Left, DownLeft, Down, DownRight]
-    orthoNeighbors = [Right, Up, Left, Down]
+    clockwise = orthoNeighbors = [Right, Up, Left, Down]
+    counterClockwise = [Right, Down, Left, Up]
     diagonalNeighbors = [UpRight, UpLeft, DownLeft, DownRight]
 
     def __init__(self, width, data=None):
