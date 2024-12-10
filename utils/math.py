@@ -7,7 +7,9 @@ from __future__ import annotations
 import math
 import functools
 import operator
-from typing import Any, Iterable
+from typing import Any, Iterable, TypeAlias
+
+Vector: TypeAlias = list[int | float]
 
 
 def add(a, b=None):
@@ -311,7 +313,7 @@ class Int2(Number2):
         self[1] = int(value)
 
 
-def dot(a, b):
+def dot(a: Vector, b: Vector):
     """
     :param list a: list of numbers
     :param list b: list of numbers equal in length to the first list
@@ -323,7 +325,7 @@ def dot(a, b):
     return sum([x * y for x, y in zip(a, b)])
 
 
-def getBarycentric(p, a, b, c):
+def getBarycentric(p: Vector, a: Vector, b: Vector, c: Vector) -> Vector:
     """
     Get the barycentric coordinates of cartesin point a in
     reference frame abc
@@ -350,7 +352,7 @@ def getBarycentric(p, a, b, c):
     w = (d00 * d21 - d01 * d20) / denom
     u = 1.0 - v - w
 
-    return u, v, w
+    return [u, v, w]
 
 
 class BoundingBox2D(object):
