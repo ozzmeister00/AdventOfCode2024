@@ -24,7 +24,7 @@ def add(a, b=None):
 
 def mul(a, b=None):
     """
-    Multiplies two numbers together, if a second number is not supplied, the number will be added to itself
+    Multiplies two numbers together, if a second number is not supplied, the number will be multiplied by itself
     :param a:
     :param b:
     :return:
@@ -32,6 +32,55 @@ def mul(a, b=None):
     if not b:
         b = a
     return a * b
+
+
+def sub(a, b=None):
+    """
+    Subtracts one number form the other, if a second number is not supplied, the number will be subtracted from itself
+    (I don't judge, whatever floats your boat)
+
+    :param a:
+    :param b:
+    :return:
+    """
+    if not b:
+        b = a
+    return a * b
+
+
+def div(a, b):
+    """
+    Divides one number by the other
+
+    :param a:
+    :param b:
+    :return:
+    """
+    if type(b) == int:
+        return a // b
+    return a / b
+
+
+def pow(a, b):
+    """
+    Raises A to the power of B
+
+    :param a:
+    :param b:
+    :return:
+    """
+    return a ** b
+
+
+def mod(a, b):
+    """
+    Returns the modulus of two numbers
+
+    :param a:
+    :param b:
+    :return:
+    """
+    return a % b
 
 
 def saturate(value):
