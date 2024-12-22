@@ -43,7 +43,8 @@ class GridSquare(list):
         """
 
         :param direction:
-        :return: if this square has been visited from the input direction previously
+        :return: if this square has been visited from the input direction 
+previously
         """
         if direction in self:
             return True
@@ -185,7 +186,8 @@ class Solver(solver.solver.ProblemSolver):
 
     def SolvePartOne(self) -> int:
         """
-        :return int: the number of distinct positions the guard visits on the map
+        :return int: the number of distinct positions the guard visits on the 
+map
         """
         # plot the guard's path using the known rules
         self.plotGuardsPath()
@@ -198,7 +200,8 @@ class Solver(solver.solver.ProblemSolver):
 
     def SolvePartTwo(self) -> int:
         """
-        :return int: the number of positions that could contain an obstruction which would cause the guard's path to loop
+        :return int: the number of positions that could contain an obstruction 
+which would cause the guard's path to loop
         """
         # if part one hasn't been run, then we need to do an initial pass at plotting the guard's path
         if not self.visitedPositions:

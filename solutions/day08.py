@@ -73,7 +73,8 @@ class Solver(solver.solver.ProblemSolver):
     def SolvePartTwo(self) -> int:
         """
 
-        :return int: the number of unique antinodes, when accounting for resonance
+        :return int: the number of unique antinodes, when accounting for 
+resonance
         """
         # build a list of combinations of nodes of the same frequency
         nodePermutations = []

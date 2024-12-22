@@ -7,7 +7,7 @@ import solver.solver
 
 class Solver(solver.solver.ProblemSolver):
     def __init__(self, rawData=None):
-        super(Solver, self).__init__(5, rawData=rawData)
+        super(Solver, self).__init__("$DAY", rawData=rawData)
 
     def ProcessInput(self):
         """

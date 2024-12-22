@@ -22,10 +22,12 @@ class Solver(solver.solver.ProblemSolver):
     def ProcessInput(self) -> None:
         """
 
-        split the input data into two sections, a list of int pairs specifying the ordering rule,
+        split the input data into two sections, a list of int pairs specifying 
+the ordering rule,
          and subsequently the page numbers of each update
 
-        :returns: don't return anything, just stash the data on the class for later retrieval
+        :returns: don't return anything, just stash the data on the class for 
+later retrieval
         """
         rules, updates = self.rawData.split('\n\n')
 
@@ -43,7 +45,8 @@ class Solver(solver.solver.ProblemSolver):
 
     def sortUpdate(self, update:list[int]) -> list[int]:
         """
-        Use a sorting function to determine if the update is in the correct order
+        Use a sorting function to determine if the update is in the correct 
+order
         """
         def order(a, b):
             if b in self.before[a]:
@@ -56,7 +59,8 @@ class Solver(solver.solver.ProblemSolver):
 
     def isUpdateCorrectlyOrdered(self, update: list[int]) -> bool:
         """
-        Take the input update and test to see if it's properly sorted based on our rules
+        Take the input update and test to see if it's properly sorted based on 
+our rules
         :return:
         """
         return update == self.sortUpdate(update)
@@ -64,7 +68,8 @@ class Solver(solver.solver.ProblemSolver):
     def SolvePartOne(self) -> int:
         """
 
-        :return int: the sum of middle page numbers for correctly ordered updates
+        :return int: the sum of middle page numbers for correctly ordered 
+updates
         """
         result = 0
 
@@ -77,7 +82,8 @@ class Solver(solver.solver.ProblemSolver):
     def SolvePartTwo(self) -> int:
         """
 
-        :return int: the sum of the middle pages of incorrectly ordered updates once they've been correctly ordered
+        :return int: the sum of the middle pages of incorrectly ordered updates 
+once they've been correctly ordered
         """
         result = 0
 

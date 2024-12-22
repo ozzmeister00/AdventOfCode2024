@@ -68,7 +68,8 @@ class Solver(solver.solver.ProblemSolver):
     def SolvePartOne(self) -> int:
         """
 
-        :return int: the sum of test values from just equation that are solvably true
+        :return int: the sum of test values from just equation that are solvably
+ true
         """
         operations = [utils.math.add, utils.math.mul]
 
