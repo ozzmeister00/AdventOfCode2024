@@ -1,11 +1,16 @@
 """
 """
-
 import itertools
+import sys
+
+import utils.list
 
 import solver.runner
 import solver.solver
 
+# version compatibility for itertools.batched
+if sys.version_info.minor < 12:
+    itertools.batched = utils.list.batched
 
 class File(object):
     def __init__(self, blockId: int, size: int, freeSpace: int) -> None:
@@ -25,7 +30,7 @@ class Solver(solver.solver.ProblemSolver):
         mapped = list(map(int, self.rawData))
         fileList = []
         index = 0
-        for batch in list(itertools.batched(mapped, n=2)):
+        for batch in list(itertools.batched(mapped, 2)):
             blockSize = batch[0]
             freeSpace = batch[1] if len(batch) > 1 else 0
             fileList.append(File(index, blockSize, freeSpace))
@@ -72,11 +77,10 @@ class Solver(solver.solver.ProblemSolver):
 
         # TODO don't try and do this in place, just build a new one?
 
-        for fileInfo in searchOrder:
-            for i, searchFileInfo in enumerate(fileSystem[:fileSystem.index(fileInfo)]):
-                if searchFileInfo.freeSpace <= fileInfo.freeSpace:
-                    fileSystem.pop(i)
-
+        #for fileInfo in searchOrder:
+        #    for i, searchFileInfo in enumerate(fileSystem[:fileSystem.index(fileInfo)]):
+        #        if searchFileInfo.freeSpace <= fileInfo.freeSpace:
+        #            fileSystem.pop(i)
 
 
         # then expand out the harddrive so we can generate the checksum

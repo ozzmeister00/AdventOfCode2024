@@ -7,9 +7,17 @@ from __future__ import annotations
 import math
 import functools
 import operator
-from typing import Any, Iterable, TypeAlias
 
-Vector: TypeAlias = list[int | float]
+import sys
+
+# version safety for type hinting before and after TypeAlias was introduced
+if sys.version_info.minor > 9:
+    from typing import Any, Iterable, TypeAlias
+
+    Vector: TypeAlias = list[int | float]
+else:
+    from typing import Any, Iterable
+    Vector = list[int]
 
 
 def add(a, b=None):
@@ -926,13 +934,13 @@ class Grid2D(list):
 
                 # slice in Y if the X of start and end points are the same
                 if coords.start.x == coords.stop.x:
-                    if coords.start.y > coords.stop.y:
+                    if coords.start.y > coords.stop.y and step > 0:
                         step *= -1
                     return [self[Int2(coords.start.x, y)] for y in range(coords.start.y, coords.stop.y + int(math.copysign(1, step)), step)]
 
                 # slice in X if the Y of start and end points are the same
                 elif coords.start.y == coords.stop.y:
-                    if coords.start.x > coords.stop.x:
+                    if coords.start.x > coords.stop.x and step > 0:
                         step *= -1
                     return [self[Int2(x, coords.start.y)] for x in range(coords.start.x, coords.stop.x + int(math.copysign(1, step)), step)]
 

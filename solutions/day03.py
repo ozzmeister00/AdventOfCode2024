@@ -71,7 +71,7 @@ import solver.solver
 import utils.logging
 import utils.progress
 
-logger = utils.logging.getLogger("day03", os.path.split(__file__)[0], level=logging.INFO, doStreamOutput=True)
+logger = utils.logging.getLogger("day03", os.path.split(__file__)[0], level=logging.INFO, doStreamOutput=False)
 
 
 class Instruction(object):

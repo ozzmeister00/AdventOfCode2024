@@ -28,7 +28,22 @@ def headsAndTails(index: int, inList: list) -> tuple[list, list]:
     if index == len(inList)-1:
         return inList[:-1], []
 
-    return inList[:index], inList[index:]
+    return inList[:index], inList[index+1:]
+
+
+def batched(iterable: Iterable, size: int) -> list[tuple]:
+    """
+    Return a list of n-size tuples from the input iterable
+    the trailing batch may be less than size n.
+    """
+    outList = []
+    for i in range(0, len(iterable), size):
+        final = i + size
+        if final > len(iterable):
+            final = len(iterable)
+        outList.append(tuple(iterable[i:i+size]))
+
+    return outList
 
 
 class defaultlist(list):

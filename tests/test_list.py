@@ -24,3 +24,9 @@ class Test(TestCase):
 
         self.assertEqual(expectedHead, heads)
         self.assertEqual(expectedTail, tails)
+
+    def test_batched(self):
+        l = list(range(10))
+        expected = [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
+
+        self.assertEqual(expected, utils.list.batched(l, 3))

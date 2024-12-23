@@ -392,7 +392,7 @@ class TestGrid2D(TestCase):
 
         # test negative slice
         expected = ['B', 'A']
-        outSlice = testObj[self.testCoords[1][0]:self.testCoords[0][0]:-1]
+        outSlice = testObj[utils.math.Int2(1, 0):utils.math.Int2(0,0):-1]
         self.assertEqual(expected, outSlice)
 
         # test diagonal slice
