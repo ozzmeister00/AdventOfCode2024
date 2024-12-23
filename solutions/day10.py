@@ -104,7 +104,7 @@ def mapInputs(value):
 class Solver(solver.solver.ProblemSolver):
     def __init__(self, rawData=None):
         super(Solver, self).__init__(10, rawData=rawData)
-        self.totalTrailheadScore = []
+        self.totalTrails = 0
         self.trailMap = copy.copy(self.processed) # make a copy of the trail map so we can visualize it
 
     def ProcessInput(self) -> utils.math.Grid2D:
@@ -129,6 +129,7 @@ class Solver(solver.solver.ProblemSolver):
 
         # if we're at 9, we know we're at the top and we can count this one as valid
         if currentValue == 9:
+            self.totalTrails += 1
             return paths
 
         for coord, value in self.processed.enumerateOrthoLocalNeighbors(coord):
@@ -161,9 +162,10 @@ class Solver(solver.solver.ProblemSolver):
 
         :return int: the result
         """
-        result = 0
+        if self.totalTrails == 0:
+            self.SolvePartOne()
 
-        return result
+        return self.totalTrails
 
 
 if __name__ == '__main__':
