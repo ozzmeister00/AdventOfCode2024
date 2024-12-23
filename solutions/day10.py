@@ -86,30 +86,75 @@ together, the sum of the scores of all trailheads is 36.
 The reindeer gleefully carries over a protractor and adds it to the pile. What 
 is the sum of the scores of all trailheads on your topographic map?
 """
+import copy
 
 import solver.runner
 import solver.solver
+
+import utils.math
+
+
+def mapInputs(value):
+    if value.isnumeric():
+        return int(value)
+    else:
+        return value
 
 
 class Solver(solver.solver.ProblemSolver):
     def __init__(self, rawData=None):
         super(Solver, self).__init__(10, rawData=rawData)
+        self.totalTrailheadScore = []
+        self.trailMap = copy.copy(self.processed) # make a copy of the trail map so we can visualize it
 
-    def ProcessInput(self):
+    def ProcessInput(self) -> utils.math.Grid2D:
         """
-        :returns:
+        :returns a grid version of the height map
         """
-        processed = None
-        return processed
+
+        width = len(self.rawData.split('\n')[0])
+        processed = list(map(mapInputs, self.rawData.replace('\n', '')))
+
+        return utils.math.Grid2D(width, data=processed)
+
+    def stepPath(self, coord: utils.math.Int2, paths: list[utils.math.Int2]) -> list[utils.math.Int2]:
+        """
+
+        """
+        if coord not in paths:
+            paths.append(coord)
+
+        currentValue = self.processed[coord]
+        target = currentValue + 1
+
+        # if we're at 9, we know we're at the top and we can count this one as valid
+        if currentValue == 9:
+            return paths
+
+        for coord, value in self.processed.enumerateOrthoLocalNeighbors(coord):
+            if value == target:
+                paths = self.stepPath(coord, paths)
+
+        return paths
 
     def SolvePartOne(self) -> int:
         """
+        Trailheads are scored based on the number of 9s that can be reached 
+        from that trailhead
 
-        :return int: the result
+        :return int: the sum of the score of all trailheads
         """
-        result = 0
+        totalTrailheadScore = 0
 
-        return result
+        trailheadCoords = self.processed.findCoords(0)
+        trails = []
+        for coord in trailheadCoords:
+            trails.append(self.stepPath(coord, []))
+
+        for trail in trails:
+            totalTrailheadScore += sum([1 for i in trail if self.processed[i] == 9])
+
+        return totalTrailheadScore
 
     def SolvePartTwo(self) -> int:
         """
