@@ -72,30 +72,113 @@ blinking 25 times, you would have 55312 stones!
 Consider the arrangement of stones in front of you. How many stones will you 
 have after blinking 25 times?
 """
+import math
 
 import solver.runner
 import solver.solver
+
+
+class StoneEvolutionRule(object):
+    NAME = "BASE"
+    
+    def isValid(self, stoneID: int) -> bool:
+        raise NotImplementedError("Rule needs to implement isValid to see if a stone matches the rule")
+    
+    def resolve(self, stoneID: int) -> list[int]:
+        raise NotImplementedError("Rule needs to implement a resolve so that the stone's ID is correctly resolved")
+
+
+class Zero(StoneEvolutionRule):
+    NAME = "Zero"
+
+    def __init__(self):
+        super(Zero, self).__init__()
+
+    def isValid(self, stoneID: int) -> bool:
+        return stoneID == 0
+
+    def resolve(self, stoneID: int) -> list[int]:
+        return [1]
+
+
+class EvenNumDigits(StoneEvolutionRule):
+    NAME = "EvenNumDigits"
+
+    def __init__(self):
+        super(EvenNumDigits, self).__init__()
+        self.numDigits = 0
+
+    def isValid(self, stoneID: int) -> bool:
+        self.numDigits = int(math.log10(stoneID)+1)
+        return self.numDigits % 2 == 0
+
+    def resolve(self, stoneID: int) -> list[int]:
+        splitPoint = 10 ** (self.numDigits / 2)
+        shifted = stoneID / splitPoint
+        left = int(shifted)
+        # round this because the frac stuff might cause floating point issues
+        right = round((shifted - left) * splitPoint)
+        return [left, right]
+
+
+class Default(StoneEvolutionRule):
+    NAME = "Default"
+
+    def __init__(self):
+        super(Default, self).__init__()
+
+    def isValid(self, stoneID: int) -> bool:
+        return True
+
+    def resolve(self, stoneID: int) -> list[int]:
+        return [stoneID * 2024]
+
+
+RULES = [Zero(), EvenNumDigits()]
 
 
 class Solver(solver.solver.ProblemSolver):
     def __init__(self, rawData=None):
         super(Solver, self).__init__(11, rawData=rawData)
 
-    def ProcessInput(self):
+    def ProcessInput(self) -> list[int]:
         """
-        :returns:
+        :returns: an array of integers representing the inital state of the stones
         """
-        processed = None
-        return processed
+        return list(map(int, self.rawData.split(' ')))
+
+    def resolveStone(self, stoneID: int) -> list[int]:
+        """
+        Checks all the rules that could apply to this stone and
+        apply the most appropriate one, returning the resulting stone(s)
+        """
+        for rule in RULES:
+            if rule.isValid(stoneID):
+                return rule.resolve(stoneID)
+
+        return Default().resolve(stoneID)
+
+    def blink(self, stones: list[int]) -> list[int]:
+        """
+        Advance the stones by one blink and return
+        the new arrangement of stones
+        """
+        outList = []
+        for stoneID in stones:
+            outList += self.resolveStone(stoneID)
+
+        return outList
 
     def SolvePartOne(self) -> int:
         """
 
-        :return int: the result
+        :return int: the number of stones after 25 blinks
         """
-        result = 0
+        partOneStones = self.processed.copy()
+        for i in range(25):
+            partOneStones = self.blink(partOneStones)
 
-        return result
+        return len(partOneStones)
 
     def SolvePartTwo(self) -> int:
         """
