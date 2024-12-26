@@ -10,10 +10,3 @@ class TestDay11(TestCase):
         solver = solutions.day11.Solver(rawData=testData)
 
         self.assertEqual(expected, solver.SolvePartOne())
-
-    def test_part02(self):
-        expected = 0
-        testData = ''''''
-        solver = solutions.day11.Solver(rawData=testData)
-
-        self.assertEqual(expected, solver.SolvePartTwo())
