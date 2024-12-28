@@ -111,39 +111,231 @@ So, it has a total price of 1930.
 
 What is the total price of fencing all regions on your map?
 """
+import collections 
 
 import solver.runner
 import solver.solver
+
+import utils.math
 
 
 class Solver(solver.solver.ProblemSolver):
     def __init__(self, rawData=None):
         super(Solver, self).__init__(12, rawData=rawData)
+        self.regions = []
 
-    def ProcessInput(self):
+    def ProcessInput(self) -> utils.math.Grid2D:
         """
-        :returns:
+        :returns: the map processed into a grid
         """
-        processed = None
-        return processed
+        width = len(self.rawData.split('\n')[0])
+        return utils.math.Grid2D(width, data=self.rawData.replace('\n', ''))
+
+    def checkNeighbors(self, coord: utils.math.Int2, region: list[utils.math.Int2], grid: utils.math.Grid2D) -> list[utils.math.Int2]:
+        """
+        Checks to see if the neighbors of the current coordinate match, and builds them into that region
+        """
+        region.append(coord)
+
+        for neighborCoord, value in grid.enumerateOrthoLocalNeighbors(coord):
+            if neighborCoord not in region and value == grid[coord]:
+                region = self.checkNeighbors(neighborCoord, region, grid)
+
+        return region
+
+    def buildRegions(self, grid: utils.math.Grid2D) -> list[list[utils.math.Int2]]:
+        """
+        Look through all the coordinates in the grid and build a region
+        from that coordinate. If the coordinate has already been marked
+        as part of a region, skip it
+        """
+        regioned = []
+        regions = []
+        index = 0
+        while len(regioned) < len(grid) and index < len(grid):
+            coord = grid.indexToCoords(index)
+            if coord not in regioned:
+                region = self.checkNeighbors(coord, [], grid)
+                regions.append(region)
+                regioned += region
+
+            index += 1
+
+        return regions
+
+    def scoreRegion(self, region: list[utils.math.Int2]) -> int:
+        """
+        Determines the area and perimeter of a region and returns
+        the product of the two
+        """
+        area = len(region)
+        perimeter = 0
+        for coord in region:
+            for direction in utils.math.Grid2D.orthoNeighbors:
+                neighbor = coord + direction
+                if neighbor not in region:
+                    perimeter += 1
+        
+        return area * perimeter
 
     def SolvePartOne(self) -> int:
         """
-
-        :return int: the result
+        :return int: the total cost of fencing for the different plots in the farm
         """
-        result = 0
+        self.regions = self.buildRegions(self.processed)
+        score = 0
+        for region in self.regions:
+            score += self.scoreRegion(region)
 
-        return result
+        return score
+
+    def findPerimeterCoordsForRegion(self, region: list[utils.math.Int2]) -> list[utils.math.Int2]:
+        """
+        """
+        value = self.processed[region[0]]
+        
+        # find all the coords by testing its neighbors, if any of the neighbors
+        # of any given coordinate are NOT the same value as this region, 
+        # then we know that given coordinate is on the perimeter of the region
+        perimeterCoords = []
+        for coord in region:
+            neighborIndex = 0
+            while neighborIndex < 4:
+                neighbor = coord + utils.math.Grid2D.orthoNeighbors[neighborIndex]
+                if self.processed.coordsInBounds(neighbor):
+                    if self.processed[neighbor] != value:
+                        perimeterCoords.append(coord)
+                
+                # if the coordinate is out of bounds, then we know this coordinate is on the perimeter!
+                else:
+                    perimeterCoords.append(coord)
+
+                neighborIndex += 1
+
+        return perimeterCoords
+
+    def sortCoordinatesByConnection(self, startCoord: utils.math.Int2,\
+                                          coordinates: list[utils.math.Int2],\
+                                          sortedCoords: list[utils.math.Int2],\
+                                          windingOrder: list[utils.math.Int2] = utils.math.Grid2D.clockwise) -> list[utils.math.Int2]:
+        """
+        Sorts the input list of coordinates by their connectedness starting from the
+        first index of the input coordinates list in the input winding order
+        """
+        value = self.processed[startCoord]
+        coordinates.pop(coordinates.index(startCoord))
+        sortedCoords.append(startCoord)
+
+        neighborIndex = 0
+        while neighborIndex < 4 and coordinates:
+            neighbor = startCoord + windingOrder[neighborIndex]
+            if self.processed.coordsInBounds(neighbor):
+                if neighbor in coordinates and neighbor not in sortedCoords:
+                    neighborIndex = 4
+                    sortedCoords = self.sortCoordinatesByConnection(neighbor, coordinates, sortedCoords, windingOrder=windingOrder)
+
+            neighborIndex += 1
+
+        return sortedCoords
+
+    def checkBoundary(self, coordFacing: tuple[utils.math.Int2, utils.math.Int2], group: list[utils.math.Int2], coords: list[tuple[utils.math.Int2, utils.math.Int2]]) -> list[utils.math.Int2]:
+        """
+        Check to see which of the neighbors of the input coordinate are in the input
+        list of coordinates and share a direction, and build out from there
+        """
+        coord, facing = coordFacing
+        group.append(coordFacing)
+
+        for direction in utils.math.Grid2D.orthoNeighbors:
+            neighborCoord = coord + direction
+            neighborFacing = (neighborCoord, facing)
+            if neighborFacing in coords and neighborFacing not in group:
+                group = self.checkBoundary(neighborFacing, group, coords)
+
+        return group
+
+    def buildCoordinateGroups(self, coords: list[utils.math.Grid2D]) -> list[list[utils.math.Int2]]:
+        """
+        Look through all the coordinates in the grid and build a region
+        from that coordinate. If the coordinate has already been marked
+        as part of a region, skip it
+        """
+        grouped = []
+        groups = []
+        index = 0
+        while len(grouped) < len(coords) and index < len(coords):
+            coordFacing = coords[index]
+            if coordFacing not in grouped:
+                group = self.checkBoundary(coordFacing, [], coords)
+                groups.append(group)
+                grouped += group
+
+            index += 1
+
+        return groups
+
+    def getNumSidesOfRegion(self, region: list[utils.math.Int2]) -> int:
+        """
+        Finds the number of sides of the input region of points
+        """
+        value = self.processed[region[0]]
+
+        perimeterCoords = self.findPerimeterCoordsForRegion(region)
+
+        # once we have the list of perimeter coordinates, we need to find
+        # all the coordinates (including those out of bounds of the grid)
+        # that are reachable from the coordinates. We're in effect inflating the
+        # perimeter coordinates. This should give us a number of discontiguous 
+        # sets of coordinates outside the perimeter and we can find the total 
+        # number of connected sets of coordinates to find the number of sides
+        
+        # we need to store the boundary coordinates AND the directions from which they were reached
+        # since those are different "sides"
+        boundaryCoords = []
+
+        # loop over all the coordinates in the perimeter
+        for perimeterCoord in perimeterCoords:
+            # and all of the possible orthogonal directions
+            for direction in utils.math.Grid2D.orthoNeighbors:
+                coord = perimeterCoord + direction
+
+                # if the coordinate is out of bounds of the grid, we know it's a boundary
+                if not self.processed.coordsInBounds(coord):
+                    boundaryCoords.append((coord, direction))
+
+                # if the neighbor doesn't have the same value, we know that that direction is a boundary
+                elif self.processed[coord] != value:
+                    boundaryCoords.append((coord, direction))
+
+        # then construct all the connected boundary coordinates into separate lists 
+        boundaryEdges = self.buildCoordinateGroups(boundaryCoords)
+
+        return len(boundaryEdges)
+
+    def scoreRegionSides(self, region: list[utils.math.Int2]) -> int:
+        """
+        Figures out the number of SIDES the region has and multiplies 
+        THAT by the area of the region to determine its cost
+        """
+        area = len(region)  
+
+        numSides = self.getNumSidesOfRegion(region)
+
+        return numSides * area
 
     def SolvePartTwo(self) -> int:
         """
 
-        :return int: the result
+        :return int: the cost of regions if the cost is equal to number of region sides * area
         """
-        result = 0
+        if not self.regions:
+            self.regions = self.buildRegions(self.processed)
 
-        return result
+        score = 0
+        for region in self.regions:
+            score += self.scoreRegionSides(region)
+
+        return score
 
 
 if __name__ == '__main__':
