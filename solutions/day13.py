@@ -74,41 +74,90 @@ Figure out how to win as many prizes as possible. What is the fewest tokens you
 would have to spend to win all possible prizes?
 """
 
+import functools
+import math
+# let it be known that on this day, the 28th day of December in the 2,024th year of our lord
+# I finally caved to use regex in Advent of Code
+import re
+
 import solver.runner
 import solver.solver
+
+import utils.math
+
+
+class ClawMachine(object):
+    """
+    Object to store A button, B button, and prize coordinate
+    of a given claw machine
+    """
+    def __init__(self, a: utils.math.Int2, b: utils.math.Int2, prize: utils.math.Int2):
+        self.a = a 
+        self.b = b
+        self.prize = prize
+
+    def getCheapestPath(self, partTwo = False) -> int:
+        """
+        Evaluates all the valid paths and returns the cheapest
+        """
+        prize = self.prize + 10000000000000 if partTwo else self.prize
+
+        top = ((prize.x * self.b.y) - (self.b.x * prize.y))
+        bottom = ((self.a.x * self.b.y) - (self.b.x * self.a.y))
+
+        if top % bottom != 0:
+            return 0
+
+        a = top // bottom
+
+        b = (prize.x - a * self.a.x) // self.b.x
+        return 3 * a + b
+
+    @staticmethod
+    def fromString(inString: str):
+        aLine, bLine, prizeLine = inString.split('\n')
+        buttonRegex = 'X\+(\d*), Y\+(\d*)'
+        a = utils.math.Int2(*re.findall(buttonRegex, aLine))
+        b = utils.math.Int2(*re.findall(buttonRegex, bLine))
+        prizeRegex = 'X\=(\d*), Y\=(\d*)'
+        prize = utils.math.Int2(*re.findall(prizeRegex, prizeLine))
+
+        return ClawMachine(a, b, prize)
 
 
 class Solver(solver.solver.ProblemSolver):
     def __init__(self, rawData=None):
         super(Solver, self).__init__(13, rawData=rawData)
 
-    def ProcessInput(self):
+    def ProcessInput(self) -> list[ClawMachine]:
         """
-        :returns:
+        :returns: a list of all the unique claw machines in the input data
         """
-        processed = None
+        clawMachineRegex = "((?:Button A: X\+\d*, Y\+\d*\nButton B: X\+\d*, Y\+\d*\nPrize: X=\d*, Y=\d+)+)"
+        processed = []
+        for section in re.findall(clawMachineRegex, self.rawData):
+            processed.append(ClawMachine.fromString(section))
+
         return processed
 
     def SolvePartOne(self) -> int:
         """
-
-        :return int: the result
+        A costs 3
+        B costs 1
+        :return int: the fewest tokens needed to win all possible prizes
         """
-        result = 0
-
-        return result
+        return sum([machine.getCheapestPath() for machine in self.processed])
 
     def SolvePartTwo(self) -> int:
         """
-
-        :return int: the result
+        :return int: the fewest tokens needed to win all possible prizes, with the new offset
         """
-        result = 0
-
-        return result
+        return sum([machine.getCheapestPath(partTwo=True) for machine in self.processed])
 
 
 if __name__ == '__main__':
     daySolver = Solver()
     if solver.runner.RunTests(daySolver.day):
         daySolver.Run()
+
+# 106371526647967 is WRONG

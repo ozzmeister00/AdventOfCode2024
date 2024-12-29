@@ -61,18 +61,17 @@ This time, the sum of the results is 48 (2*4 + 8*5).
 Handle the new instructions; what do you get if you add up all of the results of
  just the enabled multiplications?
 """
-import logging
 import os
 import sys
 
 import solver.runner
 import solver.solver
 
+import utils.constants
 import utils.logging
 import utils.progress
 
-logger = utils.logging.getLogger("day03", os.path.split(__file__)[0], level=logging.INFO, doStreamOutput=False)
-
+logger = utils.logging.getLogger('day03', utils.constants.getOutputsFolder())
 
 class Instruction(object):
     """
@@ -271,4 +270,3 @@ if __name__ == '__main__':
     daySolver = Solver()
     if solver.runner.RunTests(daySolver.day):
         daySolver.Run()
-

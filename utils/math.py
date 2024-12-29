@@ -147,6 +147,11 @@ class TwoD(list):
         # aren't already of the correct type
         elif self.defaultClass:
             if not isinstance(args[0], self.defaultClass):
+                # if an iterable was passed in, unpack it one step
+                # so that the TwoD can be properly unpacked
+                if isinstance(args[0], Iterable):
+                    args = args[0]
+
                 args = [self.defaultClass(v) for v in args]
 
         super(TwoD, self).__init__(args)

@@ -3,6 +3,17 @@ from unittest import TestCase
 import solutions.day13
 
 
+class TestClawMachine(TestCase):
+    testString = '''Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=8400, Y=5400'''
+
+    def test_new(self):
+        clawMachine = solutions.day13.ClawMachine.fromString(TestClawMachine.testString)
+
+        self.assertEqual(94, clawMachine.a.x)
+
+
 class TestDay13(TestCase):
     def test_part01(self):
         expected = 480
@@ -23,11 +34,4 @@ Button B: X+27, Y+71
 Prize: X=18641, Y=10279'''
         solver = solutions.day13.Solver(rawData=testData)
 
-        self.assertEqual(0, solver.SolvePartOne())
-
-    def test_part02(self):
-        expected = 0
-        testData = ''''''
-        solver = solutions.day13.Solver(rawData=testData)
-
-        self.assertEqual(expected, solver.SolvePartTwo())
+        self.assertEqual(expected, solver.SolvePartOne())
