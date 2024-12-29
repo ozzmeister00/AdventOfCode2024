@@ -5,6 +5,7 @@ Stores our problem-solver class
 import os
 
 from utils import constants
+import utils.logging
 
 
 class ProblemSolver(object):
@@ -27,7 +28,7 @@ class ProblemSolver(object):
         # pull in raw data, and if none is provided, pull the data from the input file
         self.rawData = rawData
         if not self.rawData:
-            self.rawData = self.loadDataFromFile(self.makeDayFilePath())
+            self.rawData = self.loadDataFromFile(self.makeDayInputsFilePath())
 
         # process the input from the day through rawData
         self.processed = self.ProcessInput()
@@ -36,21 +37,27 @@ class ProblemSolver(object):
         self.partOneResult = None
         self.partTwoResult = None
 
-    def makeDayFileName(self):
-        """
+        self.logger = utils.logging.getLogger(self.makeDayFileName(), constants.getOutputsFolder(), doStreamOutput=True)
 
-        :return str:
+    def makeDayFileName(self) -> str:
+        """
+        :return str: a nice name to identify this day's solver
         """
         return f'day{str(self.day).zfill(2)}'
 
-    def makeDayFilePath(self):
+    def makeDayInputsFilePath(self) -> str:
         """
-
-        :param bool isTest:
         :return str: the full file path to the input data for the day
         """
         fileName = self.makeDayFileName() + '.txt'
         return os.path.join(constants.getInputsFolder(), fileName)
+
+    def makeDayOutputsFilePath(self) -> str:
+        """
+        :return str: the full file path to the output data for the day
+        """
+        fileName = self.makeDayFileName() + '.txt'
+        return os.path.join(constants.getOutputsFolder(), fileName)
 
     @staticmethod
     def loadDataFromFile(filePath):
@@ -96,12 +103,9 @@ class ProblemSolver(object):
 
     def Run(self):
         """
-        Solve both parts 1 and 2 with the input data, and print it out
+        Solve both parts 1 and 2 with the input data, and log it out
         """
-        try:
-            self.partOneResult = self.SolvePartOne()
-            print('Part 1 Result: ', self.partOneResult)
-            self.partTwoResult = self.SolvePartTwo()
-            print('Part 2 Result: ', self.partTwoResult)
-        except NotImplementedError:
-            print("Solving not complete due to some parts not being implemented properly")
+        self.partOneResult = self.SolvePartOne()
+        self.logger.info(f'Part 1 Result: {self.partOneResult}')
+        self.partTwoResult = self.SolvePartTwo()
+        self.logger.info(f'Part 2 Result: {self.partTwoResult}')

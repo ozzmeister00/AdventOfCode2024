@@ -3,7 +3,7 @@ import logging.handlers
 import os
 
 
-def getLogger(name: str, logFolder: str, level=logging.DEBUG, doStreamOutput=False):
+def getLogger(name: str, logFolder: str, level=logging.DEBUG, doStreamOutput=False) -> logging.Logger:
     """
     :param str name: name of the logger
     :param str logFolder: where to save the log to
@@ -17,6 +17,9 @@ def getLogger(name: str, logFolder: str, level=logging.DEBUG, doStreamOutput=Fal
     logger.setLevel(level)
 
     if not logger.hasHandlers():
+        
+        if not os.path.exists(logFolder):
+            os.makedirs(logFolder)
 
         fileHandler = logging.FileHandler(os.path.join(logFolder, name + '.log'))
         fileHandler.setLevel(level)
