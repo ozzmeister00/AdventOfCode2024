@@ -141,39 +141,119 @@ Predict the motion of the robots in your list within a space which is 101 tiles
 wide and 103 tiles tall. What will the safety factor be after exactly 100 
 seconds have elapsed?
 """
+import os
+import re
+
+import PIL
 
 import solver.runner
 import solver.solver
 
+import utils.constants
+import utils.math
+import utils.logging
+
+logger = utils.logging.getLogger("day14", utils.constants.getOutputsFolder(), doStreamOutput=True)
+
+
+class Robot(object):
+    REGEX = '((?:\d+|-\d+)+)'
+
+    def __init__(self, position: utils.math.Int2, velocity: utils.math.Int2):
+        self.startPosition = position
+        self.position = position
+        self.velocity = velocity
+
+    def advance(self, n: int, gridSize=utils.math.Int2(1, 1)) -> utils.math.Int2:
+        """
+        Advance the robot N seconds in the direction of its velocity, filterign its resulting position
+        by the width and height
+        """
+        self.position += self.velocity * n 
+        self.position %= gridSize
+        return self.position 
+
+    def reset(self):
+        self.position = self.startPosition
+
+    @staticmethod
+    def fromString(inString: str):
+        px, py, vx, vy = re.findall(Robot.REGEX, inString)
+        return Robot(utils.math.Int2(px, py), utils.math.Int2(vx, vy))
+
 
 class Solver(solver.solver.ProblemSolver):
-    def __init__(self, rawData=None):
+    def __init__(self, rawData=None, width=101, height=103):
         super(Solver, self).__init__(14, rawData=rawData)
+        self.width = width
+        self.height = height
+        self.size = utils.math.Int2(self.width, self.height)
 
-    def ProcessInput(self):
+    def ProcessInput(self) -> list[Robot]:
         """
-        :returns:
+        :returns: the list of robots from the input data
         """
-        processed = None
-        return processed
+        return [Robot.fromString(inString) for inString in self.rawData.split('\n')]
 
     def SolvePartOne(self) -> int:
         """
-
-        :return int: the result
+        :return int: the product of the number of robots in each quadrant after 100 seconds
         """
-        result = 0
+        # advance all the robots 100 times and get their resulting positions
+        resultingPositions = [r.advance(100, gridSize=self.size) for r in self.processed]
+
+        # then make four bounding boxes for each quadrant
+        zero = utils.math.Int2()
+        midpoint = self.size / 2
+        topLeft = utils.math.BoundingBox2D(zero, midpoint)
+        topRight = utils.math.BoundingBox2D(utils.math.Int2(midpoint.x + 1, 0), utils.math.Int2(self.width + 1, midpoint.y))
+        bottomLeft = utils.math.BoundingBox2D(utils.math.Int2(0, midpoint.y + 1), utils.math.Int2(midpoint.x, self.height + 1))
+        bottomRight = utils.math.BoundingBox2D(midpoint + 1, self.size + 1)
+
+        bboxes = [topLeft, topRight, bottomLeft, bottomRight]
+        result = 1
+        for bbox in bboxes:
+            quadrantScore = 0
+            for filtered in resultingPositions:
+                if bbox.pointInside(filtered):
+                    quadrantScore += 1
+            
+            result *= quadrantScore
 
         return result
 
     def SolvePartTwo(self) -> int:
         """
-
-        :return int: the result
+        :return int: the number of seconds that elapsed before the pattern resulted in a Christmas Tree
         """
         result = 0
 
-        return result
+        # create a grid so we can draw the result
+        grid = utils.math.Grid2D(self.width, data=' ' * self.width * self.height)
+
+        # rewind the robots to their starting positions
+        for r in self.processed:
+            r.reset()
+
+        seconds = 0
+
+        while input('Proceed? Y/N> ') == 'Y':
+            # clear the grid bufffer between attempts
+            for i, v in enumerate(grid):
+                grid[i] = ' '
+
+            newPositions = [r.advance(1, gridSize=self.size) for r in self.processed]
+
+            # then draw those positions to the grid
+            for p in newPositions:
+                grid[p] = '#'
+
+            with open(os.path.join(utils.constants.getOutputsFolder(), f'{seconds}.txt'), 'w') as fh:
+                fh.write(str(grid))
+
+            seconds += 1
+
+        return seconds
 
 
 if __name__ == '__main__':

@@ -18,11 +18,12 @@ p=9,3 v=2,3
 p=7,3 v=-1,2
 p=2,4 v=2,-3
 p=9,5 v=-3,-3'''
-        solver = solutions.day14.Solver(rawData=testData)
+        solver = solutions.day14.Solver(rawData=testData, width=11, height=7)
 
-        self.assertEqual(0, solver.SolvePartOne())
+        self.assertEqual(expected, solver.SolvePartOne())
 
     def test_part02(self):
+        self.skipTest("not ready")
         expected = 0
         testData = ''''''
         solver = solutions.day14.Solver(rawData=testData)

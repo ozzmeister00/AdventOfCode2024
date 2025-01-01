@@ -149,7 +149,7 @@ class TwoD(list):
             if not isinstance(args[0], self.defaultClass):
                 # if an iterable was passed in, unpack it one step
                 # so that the TwoD can be properly unpacked
-                if isinstance(args[0], Iterable):
+                if isinstance(args[0], list) or isinstance(args[0], tuple):
                     args = args[0]
 
                 args = [self.defaultClass(v) for v in args]
@@ -213,6 +213,10 @@ class TwoD(list):
 
     def __hash__(self):
         return hash((self.x, self.y))
+
+    def __mod__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__class__(self.x % other.x, self.y % other.y)
 
     @property
     def x(self):
@@ -369,7 +373,7 @@ def getBarycentric(p: Vector, a: Vector, b: Vector, c: Vector) -> Vector:
 
 
 class BoundingBox2D(object):
-    def __init__(self, minPoint, maxPoint):
+    def __init__(self, minPoint: Number2, maxPoint: Number2):
         super(BoundingBox2D, self).__init__()
 
         self.min = self.bottomLeft = minPoint
@@ -428,6 +432,9 @@ class BoundingBox2D(object):
         """
         return self.min == other.min and \
                self.max == other.max
+
+    def __repr__(self) -> str:
+        return f'BoundingBox2D({self.min}, {self.max})'
 
 
 class Line2D(object):
