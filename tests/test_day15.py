@@ -4,6 +4,23 @@ import solutions.day15
 
 
 class TestDay15(TestCase):
+    def test_part01_small(self):
+        expected = 2028
+        testData = '''########
+#..O.O.#
+##@.O..#
+#...O..#
+#.#.O..#
+#...O..#
+#......#
+########
+
+<^^>>>vv<v>>v<<'''
+        solver = solutions.day15.Solver(rawData=testData)
+
+        self.assertEqual(expected, solver.SolvePartOne())
+
+
     def test_part01(self):
         expected = 10092
         testData = '''##########
@@ -29,9 +46,10 @@ vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
 v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^'''
         solver = solutions.day15.Solver(rawData=testData)
 
-        self.assertEqual(0, solver.SolvePartOne())
+        self.assertEqual(expected, solver.SolvePartOne())
 
     def test_part02(self):
+        self.skipTest('not implemented')
         expected = 0
         testData = ''''''
         solver = solutions.day15.Solver(rawData=testData)
